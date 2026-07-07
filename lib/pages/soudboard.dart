@@ -17,15 +17,16 @@ class SoundModel extends ChangeNotifier {
     loading = true;
     notifyListeners();
     return Future.delayed(Duration(seconds: 5), () {
-      _sounds.add(
-        Sound(id: 0, name: 'TROUA', hash: 'AAAA')
-      );
+      _sounds.addAll([
+        Sound(id: 0, name: 'TROUA', hash: 'AAAA'),
+        Sound(id: 1, name: 'SOLEIL', hash: 'AAAA'),
+        Sound(id: 2, name: 'CLIlilili', hash: 'AAAA'),
+      ]);
       loading = false;
       notifyListeners();
 
     });
   }
-  
 }
 
 class SoundBoardWidget extends StatefulWidget{
@@ -46,11 +47,9 @@ class _SoundBoardWidgetState extends State<SoundBoardWidget> {
           if(value.loading) {
             return CircularProgressIndicator();
           } else {
-            return GridView.count(crossAxisCount: 2, children: value._sounds.map((sound) => Text('a')).toList());
+            return GridView.count(crossAxisCount: 2, children: value._sounds.map((sound) => Text(sound.name)).toList());
           }
         },
-        
-      
     ));
   }
 
