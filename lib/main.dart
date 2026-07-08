@@ -1,6 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
+import 'package:talker/talker.dart';
 import 'package:twogather/pages/soudboard.dart';
+
+import 'package:pocketbase/pocketbase.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+
+class DataRepository {
+  
+  
+  static DataRepository instance = DataRepository._internal();
+
+  late final PocketBase db;
+
+
+  DataRepository._internal();
+
+  Future<void> connectToDb() async {
+    final Talker talker = Talker();
+
+    // for simplicity we are using a simple SharedPreferences instance
+    // but you can also replace it with its safer EncryptedSharedPreferences alternative
+    final prefs = await SharedPreferences.getInstance();
+    talker.info(prefs);
+    // initialize the async store
+    final store = AsyncAuthStore(
+    save:    (String data) async => prefs.setString('pb_auth', data),
+    initial: prefs.getString('pb_auth'),
+    );
+    talker.info(store);
+    db = PocketBase('http://192.168.1.19:8090', authStore: store);
+    talker.info(store);
+    await db.collection('users').authWithPassword('karam.maslef@gmail.com', '_-1il6JCQwJXXRKM8rPa');
+    talker.info(db.authStore.record);
+
+  }
+}
+
 
 void main() async {
   await SoLoud.instance.init();
@@ -9,15 +46,22 @@ void main() async {
     bufferSize: 2048,
     channels: Channels.mono,
   );
+
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  
+  
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
+
+
     var scheme = ColorScheme.fromSeed(
       seedColor: Color(0xFFCA5995),
       primary: Color(0xFFCA5995),
@@ -36,7 +80,14 @@ class MyApp extends StatelessWidget {
         colorScheme: scheme,
         iconTheme: IconThemeData(color: scheme.secondary),
       ),
-      home: const MyHomePage(title: 'TwoGather'),
+      home: FutureBuilder<void>(future: DataRepository.instance.connectToDb(), builder:(context, snapshot) {
+        
+        if (snapshot.connectionState == .done) {
+          return const MyHomePage(title: 'TwoGather');
+        } else {
+          return CircularProgressIndicator();
+        }
+      },) ,
     );
   }
 }
