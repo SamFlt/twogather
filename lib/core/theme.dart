@@ -6,11 +6,10 @@ import 'package:flutter/material.dart';
 
 List<Color> getColorPalette() {
   return [
-    Color(0xFFDFFF00),
-    Color(0xFFFF6F20),
-    Color(0xFFFF007F),
-    Color(0xFF00BFFF),
-    Color(0xFFFF1493)
+    Color(0xFFFF6E29),
+    Color(0xFF25632D),
+    Color(0xFFFFACB7),
+    Color(0xFF79C8D2),
   ];
 }
 
@@ -22,7 +21,7 @@ ThemeData getTheme() {
       seedColor: c[2],
       primary: c[2],
       secondary: c[1],
-      tertiary: c[4],
+      tertiary: c[3],
       surface: Color(0x00000000),
   );
 

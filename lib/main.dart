@@ -38,6 +38,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -66,17 +67,19 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     var primary = Theme.of(context).colorScheme.primary;
 
-    Widget iconFn(IconData d) {
-      return ShaderMask(
-        blendMode: BlendMode.srcIn,
-        shaderCallback: (Rect bounds) => LinearGradient(
-          begin: .bottomCenter,
-          end: .topCenter,
-          stops: [.5, 1],
-          colors: [Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.surface],
-        ).createShader(bounds),
-        child: Icon(d),
-      );
+    Widget iconFn(IconData d, bool selected) {
+      // return ShaderMask(
+      //   blendMode: BlendMode.srcIn,
+      //   shaderCallback: (Rect bounds) => LinearGradient(
+      //     begin: .bottomCenter,
+      //     end: .topCenter,
+      //     stops: [.5, 1],
+      //     colors: [Theme.of(context).colorScheme.tertiary, Theme.of(context).colorScheme.secondary],
+      //   ).createShader(bounds),
+      //   child: Icon(d),
+      // );
+      var colorScheme = Theme.of(context).colorScheme;
+      return Icon(d, color: selected ? colorScheme.primary: colorScheme.secondary, size: 20);
     }
 
     return Scaffold(
@@ -88,36 +91,39 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
 
-      bottomNavigationBar: IconTheme(
-        data: IconTheme.of(context),
-        child: NavigationBar(
-          onDestinationSelected: (int index) {
-            setState(() {
-              currentPageIndex = index;
-            });
-          },
-
-          backgroundColor: primary,
-
-          selectedIndex: currentPageIndex,
-          destinations: <Widget>[
-            NavigationDestination(
-              selectedIcon: iconFn(Icons.speaker),
-              icon: iconFn(Icons.speaker_outlined),
-              label: 'Sounds of love',
-            ),
-            NavigationDestination(
-              icon: iconFn(Icons.lightbulb),
-              selectedIcon: iconFn(Icons.lightbulb_outlined),
-              label: 'Memories',
-            ),
-            NavigationDestination(
-              icon: iconFn(Icons.hourglass_top),
-              selectedIcon: iconFn(Icons.hourglass_bottom_outlined),
-              label: 'Events',
-            ),
-          ],
-        ),
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPageIndex = index;
+          });
+        },
+      
+        backgroundColor: primary,
+        labelTextStyle: WidgetStateProperty.fromMap(<WidgetStatesConstraint, TextStyle>{
+          WidgetState.selected: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.secondary),
+          WidgetState.any: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.secondary),
+        }),
+        indicatorColor: Theme.of(context).colorScheme.secondary,
+        indicatorShape: StarBorder(points: 8, innerRadiusRatio: 0.8, valleyRounding: 0.25, pointRounding: 0.1),
+        height: 70,
+        selectedIndex: currentPageIndex,
+        destinations: <Widget>[
+          NavigationDestination(
+            selectedIcon: iconFn(Icons.speaker, true),
+            icon: iconFn(Icons.speaker_outlined, false),
+            label: 'Sounds of love',
+          ),
+          NavigationDestination(
+            selectedIcon: iconFn(Icons.lightbulb_outlined, true),
+            icon: iconFn(Icons.lightbulb, false),
+            label: 'Memories',
+          ),
+          NavigationDestination(
+            icon: iconFn(Icons.hourglass_top, false),
+            selectedIcon: iconFn(Icons.hourglass_bottom_outlined, true),
+            label: 'Events',
+          ),
+        ],
       ),
       body: [soundPage, memoriesPage, eventPage][currentPageIndex](context),
     );
