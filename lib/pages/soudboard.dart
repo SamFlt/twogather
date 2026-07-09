@@ -77,10 +77,8 @@ class SoundButtonWidget extends StatelessWidget {
 
 class SoundBoardWidget extends StatefulWidget{
   const SoundBoardWidget({super.key});
-
   @override
   State<StatefulWidget> createState() => _SoundBoardWidgetState();
-  
 }
 
 class _SoundBoardWidgetState extends State<SoundBoardWidget> {
@@ -94,7 +92,10 @@ class _SoundBoardWidgetState extends State<SoundBoardWidget> {
           if(value.loading) {
             return CircularProgressIndicator();
           } else {
-            return GridView.count(crossAxisCount: 2, children: value._sounds.map((sound) => SoundButtonWidget(sound)).toList());
+            return Scaffold(
+              floatingActionButton: FloatingActionButton(onPressed: () => print("Going to add page"), child: Icon(Icons.add)),
+              body: GridView.count(crossAxisCount: 2, children: value._sounds.map((sound) => SoundButtonWidget(sound)).toList())
+            );
           }
         },
     ));

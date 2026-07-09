@@ -7,8 +7,9 @@ class DataRepository {
   
   static DataRepository instance = DataRepository._internal();
 
-  late final PocketBase _db;
+  late PocketBase _db;
   bool init = false;
+  bool connected = false;
 
   Future<PocketBase?> get db async {
     if(init) {
@@ -26,7 +27,7 @@ class DataRepository {
   DataRepository._internal();
 
   Future<void> connectToDb() async {
-    if(init) {
+    if(init && connected) {
       return;
     }
     
@@ -43,9 +44,15 @@ class DataRepository {
     );
     talker.info(store);
     _db = PocketBase('http://192.168.1.19:8090', authStore: store);
-    talker.info(store);
-    await _db.collection('users').authWithPassword('karam.maslef@gmail.com', '_-1il6JCQwJXXRKM8rPa');
-    talker.info(_db.authStore.record);
     init = true;
+    talker.info(_db);
+    try {
+      await _db.collection('users').authWithPassword('karam.maslef@gmail.com', '_-1il6JCQwJXXRKM8rPa');
+      talker.info(_db.authStore.record);
+      connected = true;
+
+    } on Exception {
+      connected = false;
+    }
   }
 }

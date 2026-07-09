@@ -144,8 +144,8 @@ class SoundService extends ChangeNotifier {
 
     Future<List<Sound>> fcacheSounds = cache.readSoundList();
 
-    if(db == null) {
-      return [];
+    if(db == null || !repo.connected) {
+      return fcacheSounds;
     }
     var listRes = await db.collection("sounds").getFullList(fields: "id,description,file");
 

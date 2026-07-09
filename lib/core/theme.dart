@@ -28,6 +28,10 @@ ThemeData getTheme() {
   return ThemeData(
     colorScheme: scheme,
     iconTheme: IconThemeData(color: scheme.secondary),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: scheme.secondary,
+      foregroundColor: scheme.primary
+    ),
     fontFamily: 'Moliga'
   );
 }
