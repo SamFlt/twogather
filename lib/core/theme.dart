@@ -21,8 +21,9 @@ ThemeData getTheme() {
       seedColor: c[2],
       primary: c[2],
       secondary: c[1],
-      tertiary: c[3],
-      surface: Color(0x00000000),
+      tertiary: c[0],
+      // surface: Color(0xFFF4F4DC),
+      surface: Color(0XFFffefcb)
   );
 
   return ThemeData(
@@ -117,14 +118,13 @@ class _HalftoneBorderPainter extends CustomPainter {
   final double bandWidth; // thickness of the halftone band
   final double gridSpacing; // spacing between dot centers
   final double maxDotRadius;
-  final int seed;
+  final int seed = 7;
 
   _HalftoneBorderPainter({
     required this.dotColor,
     this.bandWidth = 18,
     this.gridSpacing = 7,
     this.maxDotRadius = 3.2,
-    this.seed = 7,
   });
 
   @override
@@ -166,5 +166,5 @@ class _HalftoneBorderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _HalftoneBorderPainter oldDelegate) =>
-      oldDelegate.seed != seed || oldDelegate.dotColor != dotColor;
+      oldDelegate.dotColor != dotColor;
 }
