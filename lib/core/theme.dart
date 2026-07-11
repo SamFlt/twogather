@@ -1,14 +1,12 @@
 
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 List<Color> getColorPalette() {
   return [
     Color(0xFFFF6E29),
-    Color(0xFF25632D),
     Color(0xFFFFACB7),
+    Color(0xFF25632D),
     Color(0xFF79C8D2),
   ];
 }
@@ -33,7 +31,21 @@ ThemeData getTheme() {
       backgroundColor: scheme.secondary,
       foregroundColor: scheme.primary
     ),
-    fontFamily: 'Moliga'
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ButtonStyle(
+        backgroundColor: WidgetStateColor.fromMap(
+          <WidgetStatesConstraint, Color>{
+            WidgetState.any: scheme.tertiary,
+          },
+        
+        ),
+        foregroundColor: WidgetStateColor.fromMap(
+          <WidgetStatesConstraint, Color>{
+            WidgetState.any: scheme.surface,
+          })
+      )
+    ),
+    fontFamily: 'Neulis'
   );
 }
 
@@ -74,11 +86,6 @@ class _PopArtButtonState extends State<PopArtButton> {
           0,
         ),
         child: CustomPaint(
-          foregroundPainter: _HalftoneBorderPainter(
-              dotColor: widget.dotColor,
-              bandWidth: 18,     // how deep the halftone fade extends inward
-              gridSpacing: 7,    // density of dots — smaller = denser
-              maxDotRadius: 3.2), // size of dots right at the edge),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             decoration: BoxDecoration(
@@ -98,7 +105,7 @@ class _PopArtButtonState extends State<PopArtButton> {
             child: Center(child: Text(
               widget.label,
               style: const TextStyle(
-                fontSize: 20,
+                fontSize: 16,
                 fontWeight: FontWeight.w900,
                 color: Colors.black,
                 letterSpacing: 1.2,
@@ -112,59 +119,3 @@ class _PopArtButtonState extends State<PopArtButton> {
 }
 
 
-
-class _HalftoneBorderPainter extends CustomPainter {
-  final Color dotColor;
-  final double bandWidth; // thickness of the halftone band
-  final double gridSpacing; // spacing between dot centers
-  final double maxDotRadius;
-  final int seed = 7;
-
-  _HalftoneBorderPainter({
-    required this.dotColor,
-    this.bandWidth = 18,
-    this.gridSpacing = 7,
-    this.maxDotRadius = 3.2,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = dotColor;
-    final rng = Random(seed);
-    final rect = Offset.zero & size;
-
-    // Walk a full grid across the button, only draw dots that fall
-    // inside the border band (distance to nearest edge <= bandWidth)
-    for (double x = 0; x <= rect.width; x += gridSpacing) {
-      for (double y = 0; y <= rect.height; y += gridSpacing) {
-        final distToEdge = [
-          x, // distance from left
-          rect.width - x, // distance from right
-          y, // distance from top
-          rect.height - y, // distance from bottom
-        ].reduce(min);
-
-        if (distToEdge > bandWidth) continue; // inside the button, skip
-
-        // halftone effect: dots shrink as they get farther from the edge
-        final t = (1 - (distToEdge / bandWidth)).clamp(0.0, 1.0);
-        final radius = maxDotRadius * t;
-        if (radius < 0.4) continue; // too small to bother drawing
-
-        // slight jitter so the grid doesn't look mechanical
-        final jitterX = (rng.nextDouble() - 0.5) * gridSpacing * 0.1;
-        final jitterY = (rng.nextDouble() - 0.5) * gridSpacing * 0.1;
-
-        canvas.drawCircle(
-          Offset(x + jitterX, y + jitterY),
-          radius,
-          paint,
-        );
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _HalftoneBorderPainter oldDelegate) =>
-      oldDelegate.dotColor != dotColor;
-}

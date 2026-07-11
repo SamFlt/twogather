@@ -15,17 +15,18 @@ class Sound {
   String name;
   String? filename;
   AudioSource? audio;
+  SoundHandle? handle;
   Sound({required this.id, required this.name, required this.filename});
 
-  
   Sound.fromJson(Map<String, dynamic> json)
     :  id = json['id'] as String,
     name = json['name'] as String,
     filename = json['file'] as String?;
 
+  bool isPlaying() => (handle != null && SoLoud.instance.getIsValidVoiceHandle(handle!));
+
   Map<String, dynamic> toJson() => {'id': id,  'name': name, 'file': filename };
 }
-
 
 class SoundList {
   List<Sound> sounds;
@@ -100,7 +101,6 @@ class SoundCache {
 class SoundService extends ChangeNotifier {
 
   final DataRepository repo = DataRepository.instance;
-
   final SoundCache cache = SoundCache();
 
 

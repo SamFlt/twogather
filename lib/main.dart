@@ -68,16 +68,6 @@ class _MyHomePageState extends State<MyHomePage> {
     var primary = Theme.of(context).colorScheme.primary;
 
     Widget iconFn(IconData d, bool selected) {
-      // return ShaderMask(
-      //   blendMode: BlendMode.srcIn,
-      //   shaderCallback: (Rect bounds) => LinearGradient(
-      //     begin: .bottomCenter,
-      //     end: .topCenter,
-      //     stops: [.5, 1],
-      //     colors: [Theme.of(context).colorScheme.tertiary, Theme.of(context).colorScheme.secondary],
-      //   ).createShader(bounds),
-      //   child: Icon(d),
-      // );
       var colorScheme = Theme.of(context).colorScheme;
       return Icon(d, color: selected ? colorScheme.primary: colorScheme.secondary, size: 20);
     }

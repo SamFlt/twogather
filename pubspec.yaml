@@ -100,3 +100,14 @@ flutter:
     - family: Moliga
       fonts:
         - asset: fonts/Moliga.otf
+    - family: Neulis
+      fonts:
+        - asset: fonts/Neulis-Regular.otf
+        - asset: fonts/Neulis-Italic.otf
+          style: italic
+        - asset: fonts/Neulis-SemiBold.otf
+          weight: 600
+        - asset: fonts/Neulis-Bold.otf
+          weight: 700
+        - asset: fonts/Neulis-ExtraBold.otf
+          weight: 900

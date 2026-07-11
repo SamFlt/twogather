@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:provider/provider.dart';
 import 'package:twogather/data/sound.dart';
 import 'package:twogather/pages/soudboard.dart';
@@ -13,16 +14,49 @@ class SoundAddModel extends ChangeNotifier {
 
   String? selectedFileName;
 
-  void setSelectedFile(FilePickerResult res) {
+  bool playing = false;
+
+  bool canValidate() {
+    return selectedFileName != null || soundData.isNotEmpty;
+  }
+
+  void setSelectedFile(FilePickerResult res) async {
     if (res.files.length != 1) {
       throw StateError("Expected to have only one fille selected");
     }
     PlatformFile f = res.files[0];
+    if(f.path == null) {
+      return;
+    }
     selectedFileName = f.name;
+    s.audio = await SoLoud.instance.loadFile(f.path!);
+
     notifyListeners();
   }
 
   void validate() {}
+  
+  void togglePause(SoundModel model) {
+    if(s.audio != null) {
+      model.togglePause(s);
+      playing = !playing;
+      notifyListeners();
+    }
+  }
+
+  void playSound(SoundModel model) {
+    if(s.audio != null) {
+      playing = true;
+      model.playAudio(s);
+      notifyListeners();
+    } 
+  }
+
+  void stopSound(SoundModel model) {
+    playing = false;
+    model.stop(s);
+    notifyListeners();
+  }
 }
 
 class FilePickerWidget extends StatelessWidget {
@@ -66,12 +100,14 @@ class FilePickerWidget extends StatelessWidget {
   Widget groupTitle(BuildContext context, double fontSize) {
     return Center(
       child: Container(
-        padding: EdgeInsets.only(top: fontSize / 2, bottom: fontSize / 2, left: fontSize / 2, right: fontSize / 2),
-        color: Theme.of(context).colorScheme.surface,
-        child: Text(
-          'Choose a file',
-          style: TextStyle(fontSize: fontSize),
+        padding: EdgeInsets.only(
+          top: fontSize / 2,
+          bottom: fontSize / 2,
+          left: fontSize / 2,
+          right: fontSize / 2,
         ),
+        color: Theme.of(context).colorScheme.surface,
+        child: Text('Choose a file', style: TextStyle(fontSize: fontSize)),
       ),
     );
   }
@@ -109,6 +145,71 @@ class FilePickerWidget extends StatelessWidget {
   }
 }
 
+class SoundAddControls extends StatelessWidget {
+  const SoundAddControls({super.key});
+
+  
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer2<SoundModel, SoundAddModel>(
+      builder: (context, soundModel, addModel, child) {
+        List<Widget> children = [];
+
+        if (!addModel.playing) {
+          children.add(
+            ElevatedButton(
+              onPressed: () => addModel.s.audio != null ? () => addModel.playSound(soundModel) : null,
+              child: Icon(
+                Icons.play_arrow,
+                color: Theme.of(context).colorScheme.surface,
+              ),
+            ),
+          );
+        } else {
+          children.add(
+            ElevatedButton(
+              onPressed: () => addModel.s.audio != null ? addModel.stopSound(soundModel) : null,
+              child: Icon(
+                Icons.stop,
+                color: Theme.of(context).colorScheme.surface,
+              ),
+            ),
+          );
+        }
+
+        children.add(SizedBox(width: 20));
+
+        if (addModel.canValidate()) {
+          children.add(
+            ElevatedButton(
+              child: Text('Save'),
+              onPressed: () => addModel.validate(),
+            ),
+          );
+        }
+
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: .all(Radius.circular(20)),
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+
+          child: Padding(
+            padding: .fromLTRB(20, 5, 20, 5),
+            child: Row(
+              mainAxisAlignment: .center,
+              mainAxisSize: .min,
+              children: children,
+              
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class SoundAddPage extends StatelessWidget {
   const SoundAddPage({super.key});
 
@@ -121,6 +222,8 @@ class SoundAddPage extends StatelessWidget {
           builder: (context, soundModel, addModel, child) {
             return Scaffold(
               appBar: AppBar(title: Text('Add a sound')),
+              floatingActionButtonLocation: .centerFloat,
+              floatingActionButton: SoundAddControls(),
               body: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
