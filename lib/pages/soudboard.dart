@@ -1,7 +1,9 @@
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:provider/provider.dart';
+import 'package:result_dart/src/types.dart';
 import 'package:talker/talker.dart';
 import 'package:twogather/core/theme.dart';
 import 'package:twogather/data/sound.dart';
@@ -18,16 +20,14 @@ class SoundModel extends ChangeNotifier {
   SoundModel() {
     fetchSounds();
   }
-
-
-
   Future<void> updateSoundWithData(Sound s) async {
     await _service.getSoundData(s);
     notifyListeners();
   }
 
   Future<void> playAudio(Sound s) async {
-    if (_soundHandle != null) { // Only one sound can be played at the same time
+    if (_soundHandle != null) {
+      // Only one sound can be played at the same time
       SoLoud.instance.stop(_soundHandle!);
     }
     if (s.audio != null) {
@@ -40,10 +40,10 @@ class SoundModel extends ChangeNotifier {
   }
 
   Future<void> togglePause(Sound s) async {
-    if(_soundHandle == null) {
+    if (_soundHandle == null) {
       return;
     }
-    if(s.handle != _soundHandle) {
+    if (s.handle != _soundHandle) {
       Talker t = Talker();
       t.warning("Sound handle and for sound ${s.name} is badly set");
     }
@@ -53,14 +53,14 @@ class SoundModel extends ChangeNotifier {
   }
 
   void stop(Sound s) {
-    if(s.handle != null) {
+    if (s.handle != null) {
       SoLoud.instance.stop(s.handle!);
       notifyListeners();
     }
   }
 
   bool audioIsPlaying() {
-    if(_soundHandle == null) {
+    if (_soundHandle == null) {
       return false;
     }
 
@@ -76,6 +76,17 @@ class SoundModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<Result<Sound>> addSound(Sound s, Uint8List data) async {
+    var result = await _service.addSound(s, data);
+
+    result = result.onSuccess((sound) {
+      _sounds.add(sound);
+    });
+
+    notifyListeners();
+
+    return result;
+  }
 }
 
 class SoundButtonWidget extends StatelessWidget {
@@ -112,13 +123,15 @@ class SoundBoardWidget extends StatefulWidget {
   State<StatefulWidget> createState() => _SoundBoardWidgetState();
 }
 
-
 class _SoundBoardWidgetState extends State<SoundBoardWidget> {
   void onAddPressed(BuildContext context) {
     final SoundModel provider = context.read<SoundModel>();
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => ChangeNotifierProvider(create: (context) => provider, child: SoundAddPage()) ,
+        builder: (context) => ChangeNotifierProvider(
+          create: (context) => provider,
+          child: SoundAddPage(),
+        ),
         fullscreenDialog: true,
       ),
     );
