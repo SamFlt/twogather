@@ -43,6 +43,7 @@ dependencies:
   file_picker: ^11.0.2
   path_provider: ^2.1.6
   http: ^1.6.0
+  result_dart: ^2.2.0
 
 dev_dependencies:
   flutter_test:

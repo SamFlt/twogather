@@ -1,4 +1,5 @@
 import 'package:pocketbase/pocketbase.dart';
+import 'package:result_dart/result_dart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talker/talker.dart';
 
@@ -26,9 +27,9 @@ class DataRepository {
 
   DataRepository._internal();
 
-  Future<void> connectToDb() async {
+  Future<Result<int>> connectToDb() async {
     if(init && connected) {
-      return;
+      return Success(0);
     }
     
     final Talker talker = Talker();
@@ -44,15 +45,18 @@ class DataRepository {
     );
     talker.info(store);
     _db = PocketBase('http://192.168.1.19:8090', authStore: store);
+
     init = true;
     talker.info(_db);
     try {
       await _db.collection('users').authWithPassword('karam.maslef@gmail.com', '_-1il6JCQwJXXRKM8rPa');
       talker.info(_db.authStore.record);
       connected = true;
+      return Success(0);
 
-    } on Exception {
+    } on Exception catch(e) {
       connected = false;
+      return Failure(e);
     }
   }
 }

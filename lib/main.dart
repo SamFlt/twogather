@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
+import 'package:result_dart/result_dart.dart';
 import 'package:twogather/core/theme.dart';
 import 'package:twogather/data/db.dart';
 import 'package:twogather/pages/soudboard.dart';
@@ -26,10 +27,28 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'TwoGather',
       theme: getTheme(),
-      home: FutureBuilder<void>(future: DataRepository.instance.connectToDb(), builder:(context, snapshot) {
+      home: FutureBuilder<Result<int>>(future: DataRepository.instance.connectToDb(), builder:(context, snapshot) {
         
         if (snapshot.connectionState == .done) {
-          return const MyHomePage(title: 'TwoGather');
+
+          if(snapshot.data == null) {
+            return MyHomePage(title: 'TwoGater (local)');
+          }
+          return snapshot.data!.fold((success) => MyHomePage(title: 'TwoGather'),
+            (failure) {
+              final snackBar = SnackBar(
+              content: Text(failure.toString()),
+              action: SnackBarAction(
+                label: 'Undo',
+                onPressed: () {
+                  // Some code to undo the change.
+                },
+              ),
+              );
+              return MyHomePage(title: 'TwoGater (local)', message: snackBar);
+            },
+          );
+           
         } else {
           return Center(child:CircularProgressIndicator());
         }
@@ -40,13 +59,16 @@ class MyApp extends StatelessWidget {
 
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  MyHomePage({super.key, required this.title, this.message});
 
   final String title;
+  final SnackBar? message;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
+
+
 
 class _MyHomePageState extends State<MyHomePage> {
   int currentPageIndex = 0;
@@ -64,6 +86,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    if(widget.message != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).showSnackBar(widget.message!);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     var primary = Theme.of(context).colorScheme.primary;
 
@@ -72,7 +104,9 @@ class _MyHomePageState extends State<MyHomePage> {
       return Icon(d, color: selected ? colorScheme.primary: colorScheme.secondary, size: 20);
     }
 
+    
     return Scaffold(
+
       appBar: AppBar(
         backgroundColor: primary,
         foregroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -115,7 +149,13 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: [soundPage, memoriesPage, eventPage][currentPageIndex](context),
+      body: Builder(
+        builder: (context) {
+          
+          return [soundPage, memoriesPage, eventPage][currentPageIndex](context);
+        }
+      ),
     );
   }
+  
 }
