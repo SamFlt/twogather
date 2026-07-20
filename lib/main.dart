@@ -3,7 +3,7 @@ import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:twogather/core/theme.dart';
 import 'package:twogather/data/db.dart';
-import 'package:twogather/pages/soudboard.dart';
+import 'package:twogather/pages/soundboard.dart';
 
 
 void main() async {
@@ -22,8 +22,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
-
     return MaterialApp(
       title: 'TwoGather',
       theme: getTheme(),

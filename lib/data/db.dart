@@ -44,7 +44,7 @@ class DataRepository {
     initial: prefs.getString('pb_auth'),
     );
     talker.info(store);
-    _db = PocketBase('http://192.168.1.19:8090', authStore: store);
+    _db = PocketBase('http://192.168.1.188:8090', authStore: store);
 
     init = true;
     talker.info(_db);

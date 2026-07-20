@@ -7,10 +7,10 @@ import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:provider/provider.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:twogather/data/sound.dart';
-import 'package:twogather/pages/soudboard.dart';
+import 'package:twogather/pages/soundboard.dart';
 
 class SoundAddModel extends ChangeNotifier {
-  Sound s = Sound(id: "0", name: "Temp", filename: null);
+  Sound s = Sound(id: "0", name: "", filename: null);
 
   Uint8List soundData = Uint8List(0);
 
@@ -32,7 +32,7 @@ class SoundAddModel extends ChangeNotifier {
       throw StateError("Expected to have only one fille selected");
     }
     PlatformFile f = res.files[0];
-    if(f.path == null) {
+    if (f.path == null) {
       return;
     }
     selectedFileName = f.name;
@@ -47,7 +47,7 @@ class SoundAddModel extends ChangeNotifier {
   }
 
   Future<Result<Sound>> validate(SoundModel model) async {
-    if(!canValidate()) {
+    if (!canValidate()) {
       return Failure(Exception("Data not provided"));
     }
 
@@ -55,9 +55,9 @@ class SoundAddModel extends ChangeNotifier {
     notifyListeners();
     return result;
   }
-  
+
   void togglePause(SoundModel model) {
-    if(s.audio != null) {
+    if (s.audio != null) {
       model.togglePause(s);
       playing = !playing;
       notifyListeners();
@@ -65,17 +65,67 @@ class SoundAddModel extends ChangeNotifier {
   }
 
   void playSound(SoundModel model) {
-    if(s.audio != null) {
+    if (s.audio != null) {
       playing = true;
       model.playAudio(s);
       notifyListeners();
-    } 
+    }
   }
 
   void stopSound(SoundModel model) {
     playing = false;
     model.stop(s);
     notifyListeners();
+  }
+}
+
+class FormGroup extends StatelessWidget {
+  const FormGroup({
+    required this.title,
+    required this.child,
+    this.fontSize,
+    super.key,
+  });
+  final String title;
+  final Widget child;
+  final double? fontSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          padding: EdgeInsets.all(20),
+          margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Theme.of(context).colorScheme.secondary,
+              width: 2,
+            ),
+            borderRadius: BorderRadius.circular(5),
+            shape: BoxShape.rectangle,
+          ),
+          child: child,
+        ),
+        groupTitle(context),
+      ],
+    );
+  }
+
+  Widget groupTitle(BuildContext context) {
+    double fs = fontSize ?? 20.0;
+    return Center(
+      child: Container(
+        padding: EdgeInsets.only(
+          top: fs / 2,
+          bottom: fs / 2,
+          left: fs / 2,
+          right: fs / 2,
+        ),
+        color: Theme.of(context).colorScheme.surface,
+        child: Text(title, style: TextStyle(fontSize: fontSize)),
+      ),
+    );
   }
 }
 
@@ -94,17 +144,6 @@ class FilePickerWidget extends StatelessWidget {
     }
   }
 
-  BoxDecoration groupBorder(BuildContext context) {
-    return BoxDecoration(
-      border: Border.all(
-        color: Theme.of(context).colorScheme.secondary,
-        width: 2,
-      ),
-      borderRadius: BorderRadius.circular(5),
-      shape: BoxShape.rectangle,
-    );
-  }
-
   BoxDecoration buttonDecoration(BuildContext context) {
     return BoxDecoration(
       border: Border.all(
@@ -117,77 +156,60 @@ class FilePickerWidget extends StatelessWidget {
     );
   }
 
-  Widget groupTitle(BuildContext context, double fontSize) {
-    return Center(
-      child: Container(
-        padding: EdgeInsets.only(
-          top: fontSize / 2,
-          bottom: fontSize / 2,
-          left: fontSize / 2,
-          right: fontSize / 2,
-        ),
-        color: Theme.of(context).colorScheme.surface,
-        child: Text('Choose a file', style: TextStyle(fontSize: fontSize)),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<SoundAddModel>(
-      builder: (context, addModel, child) => Stack(
-        children: [
-          Container(
-            padding: EdgeInsets.all(20),
-            margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
-            decoration: groupBorder(context),
-            child: Container(
-              decoration: buttonDecoration(context),
-              child: Center(
-                child: TextButton(
-                  onPressed: () => addFilePressed(addModel),
-                  child: Column(
-                    children: addModel.selectedFileName == null
-                        ? [Icon(Icons.add), Text("Click to select file")]
-                        : [
-                            Icon(Icons.change_circle),
-                            Text(addModel.selectedFileName!),
-                          ],
-                  ),
-                ),
+      builder: (context, addModel, child) => FormGroup(
+        title: 'Choose a file',
+        child: Container(
+          decoration: buttonDecoration(context),
+          child: Center(
+            child: TextButton(
+              onPressed: () => addFilePressed(addModel),
+              child: Column(
+                children: addModel.selectedFileName == null
+                    ? [Icon(Icons.add), Text("Click to select file")]
+                    : [
+                        Icon(Icons.change_circle),
+                        Text(addModel.selectedFileName!),
+                      ],
               ),
             ),
           ),
-          groupTitle(context, 16),
-        ],
+        ),
       ),
     );
   }
 }
 
 class SoundAddControls extends StatelessWidget {
-  const SoundAddControls({super.key});
+  const SoundAddControls(this.soundModel, {super.key});
+
+  final SoundModel soundModel;
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<SoundModel, SoundAddModel>(
-      builder: (context, soundModel, addModel, child) {
+    return Consumer<SoundAddModel>(
+      builder: (context, addModel, child) {
         List<Widget> children = [];
 
         if (!addModel.playing) {
           children.add(
             ElevatedButton(
-              onPressed: () => addModel.s.audio != null ? () => addModel.playSound(soundModel) : null,
+              onPressed: addModel.s.audio != null
+                  ? () => addModel.playSound(soundModel)
+                  : null,
               child: Icon(
                 Icons.play_arrow,
-                color: Theme.of(context).colorScheme.surface,
               ),
             ),
           );
         } else {
           children.add(
             ElevatedButton(
-              onPressed: () => addModel.s.audio != null ? addModel.stopSound(soundModel) : null,
+              onPressed: () => addModel.s.audio != null
+                  ? addModel.stopSound(soundModel)
+                  : null,
               child: Icon(
                 Icons.stop,
                 color: Theme.of(context).colorScheme.surface,
@@ -197,28 +219,33 @@ class SoundAddControls extends StatelessWidget {
         }
 
         children.add(SizedBox(width: 20));
-
-        if (addModel.canValidate()) {
-          children.add(
-            ElevatedButton(
-              child: Text('Save'),
-              onPressed: () async {
+        var validate = addModel.canValidate()
+            ? () async {
                 final result = await addModel.validate(soundModel);
-                result.fold((success) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sound was successfully saved")));
-                  Navigator.pop(context);
-
-                },(e) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("There was an issue saving the sound: $e")));
-                });
-              },
-            ),
-          );
-        }
+                result.fold(
+                  (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Sound was successfully saved")),
+                    );
+                    Navigator.pop(context);
+                  },
+                  (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "There was an issue saving the sound: $e",
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }
+            : null;
+        children.add(ElevatedButton(onPressed: validate, child: Text('Save')));
 
         return Container(
           decoration: BoxDecoration(
-            borderRadius: .all(Radius.circular(20)),
+            borderRadius: .all(Radius.circular(10)),
             color: Theme.of(context).colorScheme.secondary,
           ),
 
@@ -228,7 +255,6 @@ class SoundAddControls extends StatelessWidget {
               mainAxisAlignment: .center,
               mainAxisSize: .min,
               children: children,
-              
             ),
           ),
         );
@@ -238,26 +264,34 @@ class SoundAddControls extends StatelessWidget {
 }
 
 class SoundAddPage extends StatelessWidget {
-  const SoundAddPage({super.key});
+  const SoundAddPage({super.key, required this.soundModel});
+
+  final SoundModel soundModel;
 
   @override
   Widget build(BuildContext context) {
+    var textStyle = TextStyle(color: Theme.of(context).colorScheme.secondary);
     return ChangeNotifierProvider(
       create: (BuildContext context) => SoundAddModel(),
       builder: (context, child) {
-        return Consumer2<SoundModel, SoundAddModel>(
-          builder: (context, soundModel, addModel, child) {
+        return Consumer<SoundAddModel>(
+          builder: (context, addModel, child) {
             return Scaffold(
               appBar: AppBar(title: Text('Add a sound')),
               floatingActionButtonLocation: .centerFloat,
-              floatingActionButton: SoundAddControls(),
+              floatingActionButton: SoundAddControls(soundModel),
               body: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: [
                       TextField(
-                        decoration: InputDecoration(label: Text("Sound name")),
+                        style: textStyle,
+                        decoration: InputDecoration(
+                          label: Text("Sound name"),
+                          hintStyle: textStyle,
+                          labelStyle: textStyle,
+                        ),
                       ),
                       FilePickerWidget(),
                     ],

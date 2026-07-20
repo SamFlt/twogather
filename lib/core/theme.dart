@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 List<Color> getColorPalette() {
   return [
     Color(0xFFFF6E29),
-    Color(0xFFFFACB7),
     Color(0xFF25632D),
+    Color(0xFFFFACB7),
     Color(0xFF79C8D2),
   ];
 }
@@ -24,26 +24,37 @@ ThemeData getTheme() {
       surface: Color(0XFFffefcb)
   );
 
+
+  var buttonStyle = ButtonStyle(
+    backgroundColor: WidgetStateColor.fromMap(
+      <WidgetStatesConstraint, Color>{
+        WidgetState.disabled: Color.fromARGB(255, 139, 139, 139),
+        WidgetState.any: scheme.tertiary,
+      },
+    
+    ),
+    foregroundColor: WidgetStateColor.fromMap(
+      <WidgetStatesConstraint, Color>{
+        WidgetState.disabled: Color(0xFFFFFFFF),
+        WidgetState.any: scheme.surface,
+    }),
+  );
+
   return ThemeData(
     colorScheme: scheme,
     iconTheme: IconThemeData(color: scheme.secondary),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: scheme.secondary,
-      foregroundColor: scheme.primary
+      backgroundColor: scheme.primary,
+      foregroundColor: scheme.secondary,
+      // shape: RoundedRectangleBorder(side: .none, borderRadius: .all(Radius.elliptical(1, 1)))
+      
+    ),
+    iconButtonTheme: IconButtonThemeData(
+      style: buttonStyle,
+      
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ButtonStyle(
-        backgroundColor: WidgetStateColor.fromMap(
-          <WidgetStatesConstraint, Color>{
-            WidgetState.any: scheme.tertiary,
-          },
-        
-        ),
-        foregroundColor: WidgetStateColor.fromMap(
-          <WidgetStatesConstraint, Color>{
-            WidgetState.any: scheme.surface,
-          })
-      )
+      style: buttonStyle,
     ),
     fontFamily: 'Neulis'
   );

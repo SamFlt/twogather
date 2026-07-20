@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:provider/provider.dart';
-import 'package:result_dart/src/types.dart';
+import 'package:result_dart/result_dart.dart';
 import 'package:talker/talker.dart';
 import 'package:twogather/core/theme.dart';
 import 'package:twogather/data/sound.dart';
@@ -124,14 +124,10 @@ class SoundBoardWidget extends StatefulWidget {
 }
 
 class _SoundBoardWidgetState extends State<SoundBoardWidget> {
-  void onAddPressed(BuildContext context) {
-    final SoundModel provider = context.read<SoundModel>();
+  void onAddPressed(BuildContext context, SoundModel model) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => ChangeNotifierProvider(
-          create: (context) => provider,
-          child: SoundAddPage(),
-        ),
+        builder: (context) => SoundAddPage(soundModel: model),
         fullscreenDialog: true,
       ),
     );
@@ -144,11 +140,11 @@ class _SoundBoardWidgetState extends State<SoundBoardWidget> {
       child: Consumer<SoundModel>(
         builder: (context, value, child) {
           if (value.loading) {
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           } else {
             return Scaffold(
               floatingActionButton: FloatingActionButton(
-                onPressed: () => onAddPressed(context),
+                onPressed: () => onAddPressed(context, value),
                 child: Icon(Icons.add),
               ),
               body: GridView.count(
