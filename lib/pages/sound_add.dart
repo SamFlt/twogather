@@ -24,7 +24,12 @@ class SoundAddModel extends ChangeNotifier {
 
   void clearSelectedFile() {
     selectedFileName = null;
-    soundData.clear();
+    s.filename = null;
+    if(s.audio != null) {
+      SoLoud.instance.disposeSource(s.audio!);
+    }
+    soundData = Uint8List(0);
+    notifyListeners();
   }
 
   void setSelectedFile(FilePickerResult res) async {
@@ -45,6 +50,7 @@ class SoundAddModel extends ChangeNotifier {
 
     notifyListeners();
   }
+
 
   Future<Result<Sound>> validate(SoundModel model) async {
     if (!canValidate()) {
@@ -113,7 +119,7 @@ class FormGroup extends StatelessWidget {
   }
 
   Widget groupTitle(BuildContext context) {
-    double fs = fontSize ?? 20.0;
+    double fs = fontSize ?? 16.0;
     return Center(
       child: Container(
         padding: EdgeInsets.only(
@@ -123,7 +129,7 @@ class FormGroup extends StatelessWidget {
           right: fs / 2,
         ),
         color: Theme.of(context).colorScheme.surface,
-        child: Text(title, style: TextStyle(fontSize: fontSize)),
+        child: Text(title, style: TextStyle(fontSize: fs, color: Theme.of(context).colorScheme.secondary)),
       ),
     );
   }
@@ -147,11 +153,11 @@ class FilePickerWidget extends StatelessWidget {
   BoxDecoration buttonDecoration(BuildContext context) {
     return BoxDecoration(
       border: Border.all(
-        color: Theme.of(context).colorScheme.tertiary,
+        color: Theme.of(context).colorScheme.secondary,
         width: 1,
       ),
       borderRadius: BorderRadius.circular(5),
-      color: Theme.of(context).colorScheme.tertiary,
+      color: Theme.of(context).colorScheme.secondary,
       shape: BoxShape.rectangle,
     );
   }
@@ -164,16 +170,21 @@ class FilePickerWidget extends StatelessWidget {
         child: Container(
           decoration: buttonDecoration(context),
           child: Center(
-            child: TextButton(
-              onPressed: () => addFilePressed(addModel),
-              child: Column(
-                children: addModel.selectedFileName == null
-                    ? [Icon(Icons.add), Text("Click to select file")]
-                    : [
-                        Icon(Icons.change_circle),
-                        Text(addModel.selectedFileName!),
-                      ],
-              ),
+            child: Column(
+              children: [
+                TextButton(
+                  onPressed: () => addFilePressed(addModel),
+                  child: Column(
+                    children: addModel.selectedFileName == null
+                        ? [Icon(Icons.add), Text("Select file")]
+                        : [
+                            Icon(Icons.change_circle),
+                            Text(addModel.selectedFileName!),
+                          ],
+                  ),
+                ),
+                if(addModel.selectedFileName != null) IconButton(onPressed: () => addModel.clearSelectedFile(), icon: Icon(Icons.delete))
+              ],
             ),
           ),
         ),
@@ -294,6 +305,16 @@ class SoundAddPage extends StatelessWidget {
                         ),
                       ),
                       FilePickerWidget(),
+
+                      FormGroup(
+                        title: 'Or record audio',
+                        child: Column(children: [
+                          Center(child: 
+                            IconButton(onPressed: () => print('prout'), icon: Icon(Icons.record_voice_over))
+                          )
+                        ],)
+                      )
+
                     ],
                   ),
                 ),

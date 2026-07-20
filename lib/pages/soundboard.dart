@@ -107,10 +107,10 @@ class SoundButtonWidget extends StatelessWidget {
 
     return Consumer<SoundModel>(
       builder: (context, value, child) {
-        return PopArtButton(
-          label: sound.name,
+        return ElevatedButton(
           onPressed: () => _onPressed(value),
-          color: c,
+          child: Text(sound.name),
+          
         );
       },
     );
@@ -148,6 +148,9 @@ class _SoundBoardWidgetState extends State<SoundBoardWidget> {
                 child: Icon(Icons.add),
               ),
               body: GridView.count(
+                padding: .fromLTRB(5, 5, 5, 5),
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
                 crossAxisCount: 2,
                 children: value._sounds
                     .map((sound) => SoundButtonWidget(sound))
