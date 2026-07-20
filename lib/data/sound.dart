@@ -5,13 +5,14 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:pocketbase/pocketbase.dart';
+import 'package:result_dart/result_dart.dart';
 import 'package:talker/talker.dart';
 import 'package:twogather/data/db.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
 class Sound {
-  final String id;
+  String id;
   String name;
   String? filename;
   AudioSource? audio;
@@ -98,11 +99,51 @@ class SoundCache {
 
 }
 
+class DatabaseException implements Exception {
+  final String message;
+
+  DatabaseException(this.message);
+
+  @override
+  String toString() => 'DatabaseConnectionException: $message';
+
+}
+
 class SoundService extends ChangeNotifier {
 
   final DataRepository repo = DataRepository.instance;
   final SoundCache cache = SoundCache();
 
+  Future<Result<Sound>> addSound(Sound s, Uint8List data) async {
+    if(s.id != "0") {
+      throw ArgumentError("The id is already set, so the ojbect was already added");
+    }
+    if(s.filename == null) {
+      throw ArgumentError("Filename was not set");
+    }
+
+    final db = await repo.db;
+
+    if(db == null) {
+      return Failure(DatabaseException("Not connected to database"));
+    }
+
+    final record = await db.collection('sounds').create(
+        body: {
+        'description': s.name,
+        },
+        files: [
+          http.MultipartFile.fromBytes(
+              'file',
+              data,
+              filename: s.filename,
+          )
+        ],
+    );
+
+    s.id = record.data['id'];
+    return Success(s);
+  }
 
   Future<void> getSoundData(Sound s) async {
       bool loadedFromCache = await cache.readSoundData(s);

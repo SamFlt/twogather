@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:provider/provider.dart';
+import 'package:result_dart/result_dart.dart';
 import 'package:twogather/data/sound.dart';
 import 'package:twogather/pages/soudboard.dart';
 
@@ -20,6 +22,11 @@ class SoundAddModel extends ChangeNotifier {
     return selectedFileName != null || soundData.isNotEmpty;
   }
 
+  void clearSelectedFile() {
+    selectedFileName = null;
+    soundData.clear();
+  }
+
   void setSelectedFile(FilePickerResult res) async {
     if (res.files.length != 1) {
       throw StateError("Expected to have only one fille selected");
@@ -29,12 +36,25 @@ class SoundAddModel extends ChangeNotifier {
       return;
     }
     selectedFileName = f.name;
-    s.audio = await SoLoud.instance.loadFile(f.path!);
+    s.filename = f.name;
+
+    final ff = File(f.path!);
+
+    soundData = ff.readAsBytesSync();
+    s.audio = await SoLoud.instance.loadMem(f.path!, soundData);
 
     notifyListeners();
   }
 
-  void validate() {}
+  Future<Result<Sound>> validate(SoundModel model) async {
+    if(!canValidate()) {
+      return Failure(Exception("Data not provided"));
+    }
+
+    Result<Sound> result = await model.addSound(s, soundData);
+    notifyListeners();
+    return result;
+  }
   
   void togglePause(SoundModel model) {
     if(s.audio != null) {
@@ -148,8 +168,6 @@ class FilePickerWidget extends StatelessWidget {
 class SoundAddControls extends StatelessWidget {
   const SoundAddControls({super.key});
 
-  
-
   @override
   Widget build(BuildContext context) {
     return Consumer2<SoundModel, SoundAddModel>(
@@ -184,7 +202,16 @@ class SoundAddControls extends StatelessWidget {
           children.add(
             ElevatedButton(
               child: Text('Save'),
-              onPressed: () => addModel.validate(),
+              onPressed: () async {
+                final result = await addModel.validate(soundModel);
+                result.fold((success) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sound was successfully saved")));
+                  Navigator.pop(context);
+
+                },(e) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("There was an issue saving the sound: $e")));
+                });
+              },
             ),
           );
         }
