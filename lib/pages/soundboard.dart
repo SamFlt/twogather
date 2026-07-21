@@ -11,7 +11,7 @@ import 'package:twogather/pages/sound_add.dart';
 
 class SoundModel extends ChangeNotifier {
   final List<Sound> _sounds = [];
-  SoundHandle? _soundHandle;
+  Sound? playing;
 
   bool loading = false;
 
@@ -26,29 +26,28 @@ class SoundModel extends ChangeNotifier {
   }
 
   Future<void> playAudio(Sound s) async {
-    if (_soundHandle != null) {
-      // Only one sound can be played at the same time
-      SoLoud.instance.stop(_soundHandle!);
-    }
+    stopCurrentSound();
     if (s.audio != null) {
-      _soundHandle = await SoLoud.instance.play(s.audio!);
-      s.handle = _soundHandle;
+      s.handle = await SoLoud.instance.play(s.audio!);
+      playing = s;
       notifyListeners();
+      return Future.delayed(SoLoud.instance.getLength(s.audio!), () { playing = null; notifyListeners(); });
     } else {
       throw StateError("Tried to sound but audio source was not loaded");
     }
   }
 
   Future<void> togglePause(Sound s) async {
-    if (_soundHandle == null) {
+    if (playing == null) {
       return;
     }
-    if (s.handle != _soundHandle) {
+    if (s != playing) {
       Talker t = Talker();
       t.warning("Sound handle and for sound ${s.name} is badly set");
     }
 
-    SoLoud.instance.pauseSwitch(_soundHandle!);
+    SoLoud.instance.pauseSwitch(s.handle!);
+    
     notifyListeners();
   }
 
@@ -60,11 +59,11 @@ class SoundModel extends ChangeNotifier {
   }
 
   bool audioIsPlaying() {
-    if (_soundHandle == null) {
+    if (playing == null) {
       return false;
     }
 
-    return SoLoud.instance.getIsValidVoiceHandle(_soundHandle!);
+    return SoLoud.instance.getIsValidVoiceHandle(playing!.handle!);
   }
 
   Future<void> fetchSounds() async {
@@ -87,6 +86,15 @@ class SoundModel extends ChangeNotifier {
 
     return result;
   }
+  
+  void stopCurrentSound() {
+
+    if(playing != null) {
+      stop(playing!);
+      playing = null;
+      notifyListeners();
+    }
+  }
 }
 
 class SoundButtonWidget extends StatelessWidget {
@@ -108,10 +116,12 @@ class SoundButtonWidget extends StatelessWidget {
     return Consumer<SoundModel>(
       builder: (context, value, child) {
         return ElevatedButton(
+          
           style: ButtonStyle(
             shape: WidgetStateOutlinedBorder.fromMap({
               WidgetState.any: RoundedRectangleBorder(borderRadius: .all(.circular(5)))
             }),
+            
             backgroundColor: WidgetStateColor.fromMap({
               WidgetState.any: c
             })
@@ -132,6 +142,7 @@ class SoundBoardWidget extends StatefulWidget {
 }
 
 class _SoundBoardWidgetState extends State<SoundBoardWidget> {
+
   void onAddPressed(BuildContext context, SoundModel model) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -146,23 +157,32 @@ class _SoundBoardWidgetState extends State<SoundBoardWidget> {
     return ChangeNotifierProvider(
       create: (context) => SoundModel(),
       child: Consumer<SoundModel>(
-        builder: (context, value, child) {
-          if (value.loading) {
+        builder: (context, model, child) {
+          if (model.loading) {
             return Center(child: CircularProgressIndicator());
           } else {
             return Scaffold(
               floatingActionButton: FloatingActionButton(
-                onPressed: () => onAddPressed(context, value),
+                onPressed: () => onAddPressed(context, model),
                 child: Icon(Icons.add),
               ),
-              body: GridView.count(
+              body: Stack(
+                children:[GridView.count(
                 padding: .fromLTRB(5, 5, 5, 5),
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
                 crossAxisCount: 2,
-                children: value._sounds
+                children: model._sounds
                     .map((sound) => SoundButtonWidget(sound))
                     .toList(),
+              ),
+              if (model.playing != null) FloatingActionButton(child: Text("prout"), onPressed: () {
+                if(model.playing != null) {
+                  model.stopCurrentSound();
+                }
+              })
+              
+              ]
               ),
             );
           }

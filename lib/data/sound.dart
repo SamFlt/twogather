@@ -26,6 +26,12 @@ class Sound {
 
   bool isPlaying() => (handle != null && SoLoud.instance.getIsValidVoiceHandle(handle!));
 
+  Future<void> stop() async {
+    if(handle != null) {
+      await SoLoud.instance.stop(handle!);
+    }
+  }
+
   Map<String, dynamic> toJson() => {'id': id,  'name': name, 'file': filename };
 }
 
@@ -96,7 +102,6 @@ class SoundCache {
     }
     return false;
   }
-
 }
 
 class DatabaseException implements Exception {
@@ -118,13 +123,12 @@ class SoundService extends ChangeNotifier {
     if(s.id != "0") {
       throw ArgumentError("The id is already set, so the ojbect was already added");
     }
-    if(s.filename == null) {
-      throw ArgumentError("Filename was not set");
-    }
+
+    s.filename ??= "${s.name} + _audio.wav";
 
     final db = await repo.db;
 
-    if(db == null) {
+    if(db == null || !repo.connected) {
       return Failure(DatabaseException("Not connected to database"));
     }
 

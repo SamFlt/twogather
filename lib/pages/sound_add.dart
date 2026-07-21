@@ -3,15 +3,19 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_recorder/flutter_recorder.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:provider/provider.dart';
 import 'package:result_dart/result_dart.dart';
+import 'package:twogather/core/recorder.dart';
 import 'package:twogather/data/sound.dart';
 import 'package:twogather/pages/soundboard.dart';
 
 class SoundAddModel extends ChangeNotifier {
   Sound s = Sound(id: "0", name: "", filename: null);
 
+
+  BytesBuilder soundBuilder = BytesBuilder(copy: true);
   Uint8List soundData = Uint8List(0);
 
   String? selectedFileName;
@@ -89,7 +93,26 @@ class SoundAddModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void startRecording() {}
+  Future<bool> startRecording() async {
+    bool isGranted = await RecorderHelper.requestMic();
+    if(isGranted) {
+      await RecorderHelper.init();
+      soundBuilder.clear();
+      Recorder.instance.startStreamingData();
+      Recorder.instance.uint8ListStream.listen((data) {
+        soundBuilder.add(data.rawData);
+      });
+      recording = true;
+    }
+    notifyListeners();
+    return isGranted;
+  }
+  Future<void> stopRecording() async {
+    Recorder.instance.stopStreamingData();
+    soundData = soundBuilder.toBytes();
+    recording = false;
+    notifyListeners();
+  }
 }
 
 class FormGroup extends StatelessWidget {
@@ -339,12 +362,29 @@ class SoundAddPage extends StatelessWidget {
                         disabled: !addModel.canRecord(),
                         child: Column(
                           children: [
-                            Center(
-                              child: IconButton(
-                                onPressed: () => addModel.startRecording(),
+                            if(!addModel.recording) Center(
+                              child:  IconButton(
+                                onPressed: () async {
+                                  bool isGranted = await addModel.startRecording();
+                                  if(!isGranted) {
+                                    if(context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please grant microphone access to record sound data")));
+                                    }
+                                  }
+                                },
                                 icon: Icon(Icons.record_voice_over),
                               ),
                             ),
+                            if(addModel.recording) Center(
+                              child:  IconButton(
+                                onPressed: () async {
+                                  await addModel.stopRecording();
+                                },
+                                icon: Icon(Icons.stop),
+                              ),
+                            ),
+                          
+                          
                           ],
                         ),
                       ),
