@@ -18,14 +18,20 @@ class SoundAddModel extends ChangeNotifier {
 
   bool playing = false;
 
+  bool recording = false;
+
   bool canValidate() {
     return selectedFileName != null || soundData.isNotEmpty;
   }
 
+  bool canSelectFile() => !recording && soundData.isEmpty || selectedFileName != null;
+
+  bool canRecord() => selectedFileName == null;
+
   void clearSelectedFile() {
     selectedFileName = null;
     s.filename = null;
-    if(s.audio != null) {
+    if (s.audio != null) {
       SoLoud.instance.disposeSource(s.audio!);
     }
     soundData = Uint8List(0);
@@ -50,7 +56,6 @@ class SoundAddModel extends ChangeNotifier {
 
     notifyListeners();
   }
-
 
   Future<Result<Sound>> validate(SoundModel model) async {
     if (!canValidate()) {
@@ -83,36 +88,50 @@ class SoundAddModel extends ChangeNotifier {
     model.stop(s);
     notifyListeners();
   }
+
+  void startRecording() {}
 }
 
 class FormGroup extends StatelessWidget {
   const FormGroup({
     required this.title,
     required this.child,
+    required this.disabled,
     this.fontSize,
     super.key,
   });
   final String title;
   final Widget child;
+  final bool disabled;
   final double? fontSize;
 
   @override
   Widget build(BuildContext context) {
+    Widget container = Container(
+      padding: EdgeInsets.all(20),
+      margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Theme.of(context).colorScheme.secondary,
+          width: 2,
+        ),
+        borderRadius: BorderRadius.circular(5),
+        shape: BoxShape.rectangle,
+      ),
+      child: child,
+    );
     return Stack(
       children: [
-        Container(
-          padding: EdgeInsets.all(20),
-          margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Theme.of(context).colorScheme.secondary,
-              width: 2,
+        if (!disabled)
+          container
+        else
+          Container(
+            foregroundDecoration: BoxDecoration(
+              color: Colors.grey,
+              backgroundBlendMode: BlendMode.saturation,
             ),
-            borderRadius: BorderRadius.circular(5),
-            shape: BoxShape.rectangle,
+            child: container,
           ),
-          child: child,
-        ),
         groupTitle(context),
       ],
     );
@@ -129,7 +148,13 @@ class FormGroup extends StatelessWidget {
           right: fs / 2,
         ),
         color: Theme.of(context).colorScheme.surface,
-        child: Text(title, style: TextStyle(fontSize: fs, color: Theme.of(context).colorScheme.secondary)),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: fs,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+        ),
       ),
     );
   }
@@ -167,6 +192,7 @@ class FilePickerWidget extends StatelessWidget {
     return Consumer<SoundAddModel>(
       builder: (context, addModel, child) => FormGroup(
         title: 'Choose a file',
+        disabled: !addModel.canSelectFile(),
         child: Container(
           decoration: buttonDecoration(context),
           child: Center(
@@ -183,7 +209,11 @@ class FilePickerWidget extends StatelessWidget {
                           ],
                   ),
                 ),
-                if(addModel.selectedFileName != null) IconButton(onPressed: () => addModel.clearSelectedFile(), icon: Icon(Icons.delete))
+                if (addModel.selectedFileName != null)
+                  IconButton(
+                    onPressed: () => addModel.clearSelectedFile(),
+                    icon: Icon(Icons.delete),
+                  ),
               ],
             ),
           ),
@@ -210,9 +240,7 @@ class SoundAddControls extends StatelessWidget {
               onPressed: addModel.s.audio != null
                   ? () => addModel.playSound(soundModel)
                   : null,
-              child: Icon(
-                Icons.play_arrow,
-              ),
+              child: Icon(Icons.play_arrow),
             ),
           );
         } else {
@@ -308,13 +336,18 @@ class SoundAddPage extends StatelessWidget {
 
                       FormGroup(
                         title: 'Or record audio',
-                        child: Column(children: [
-                          Center(child: 
-                            IconButton(onPressed: () => print('prout'), icon: Icon(Icons.record_voice_over))
-                          )
-                        ],)
-                      )
-
+                        disabled: !addModel.canRecord(),
+                        child: Column(
+                          children: [
+                            Center(
+                              child: IconButton(
+                                onPressed: () => addModel.startRecording(),
+                                icon: Icon(Icons.record_voice_over),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
