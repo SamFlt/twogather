@@ -108,6 +108,14 @@ class SoundButtonWidget extends StatelessWidget {
     return Consumer<SoundModel>(
       builder: (context, value, child) {
         return ElevatedButton(
+          style: ButtonStyle(
+            shape: WidgetStateOutlinedBorder.fromMap({
+              WidgetState.any: RoundedRectangleBorder(borderRadius: .all(.circular(5)))
+            }),
+            backgroundColor: WidgetStateColor.fromMap({
+              WidgetState.any: c
+            })
+          ),
           onPressed: () => _onPressed(value),
           child: Text(sound.name),
           
