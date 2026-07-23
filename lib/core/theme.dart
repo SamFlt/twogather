@@ -44,10 +44,8 @@ ButtonStyle alternativeStyleRound(ColorScheme scheme) => ButtonStyle(
   }),
   
   iconSize: WidgetStateProperty.fromMap({
-    WidgetState.any: 20
-  })
-  
-  
+    WidgetState.any: 32
+  }) 
 );
 
 ThemeData getTheme() {
@@ -71,6 +69,9 @@ ThemeData getTheme() {
       WidgetState.disabled: Color(0xFFFFFFFF),
       WidgetState.any: scheme.surface,
     }),
+    iconSize: WidgetStateProperty.fromMap({
+      WidgetState.any: 56
+    })
   );
 
   return ThemeData(

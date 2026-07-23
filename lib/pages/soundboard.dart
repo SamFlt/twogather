@@ -122,6 +122,7 @@ class SoundButtonWidget extends StatelessWidget {
               WidgetState.any: RoundedRectangleBorder(borderRadius: .all(.circular(5)))
             }),
             
+            textStyle: WidgetStatePropertyAll(Theme.of(context).textTheme.bodyLarge),
             backgroundColor: WidgetStateColor.fromMap({
               WidgetState.any: c
             })
@@ -172,6 +173,7 @@ class _SoundBoardWidgetState extends State<SoundBoardWidget> {
                   alignment: .bottomCenter,
                   children:[GridView.count(
                   padding: .fromLTRB(5, 5, 5, 5),
+                  childAspectRatio: 1.8,
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
                   crossAxisCount: 2,
