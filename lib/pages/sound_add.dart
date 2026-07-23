@@ -26,12 +26,18 @@ class SoundAddModel extends ChangeNotifier {
   bool recording = false;
 
   bool canValidate() {
-    return selectedFileName != null || soundData.isNotEmpty;
+    
+    return s.name.isNotEmpty && (selectedFileName != null || soundData.isNotEmpty);
   }
 
   bool canSelectFile() => !recording && soundData.isEmpty || selectedFileName != null;
 
   bool canRecord() => selectedFileName == null;
+
+  void setName(String name) {
+    s.name = name;
+    notifyListeners();
+  }
 
   void clearSelectedFile() {
     selectedFileName = null;
@@ -96,10 +102,14 @@ class SoundAddModel extends ChangeNotifier {
 
   Future<bool> startRecording() async {
     bool isGranted = await RecorderHelper.requestMic();
+    
     if(isGranted) {
       await RecorderHelper.init();
       soundBuilder.clear();
-      Recorder.instance.startStreamingData();
+      DateTime now = DateTime.now();
+      s.filename = 'recording-${now.toIso8601String()}.wav';
+      // Recorder.instance.startRecording(completeFilePath: s.filename!);
+      Recorder.instance.startStreamingData(format: .pcm);
       Recorder.instance.uint8ListStream.listen((data) {
         soundBuilder.add(data.rawData);
       });
@@ -108,15 +118,15 @@ class SoundAddModel extends ChangeNotifier {
     notifyListeners();
     return isGranted;
   }
+
   Future<void> stopRecording() async {
     Recorder.instance.stopStreamingData();
     soundData = soundBuilder.toBytes();
     if(s.audio != null) {
       SoLoud.instance.disposeSource(s.audio!);
     }
-    DateTime now = DateTime.now();
-    now.toIso8601String();
-    s.filename = 'recording-${now.toIso8601String()}.wav';
+
+    soundData = RecorderHelper.convertToWav(soundData, 44100, 1, 4);
     s.audio = await SoLoud.instance.loadMem(s.filename!, soundData);
 
     recording = false;
@@ -267,7 +277,7 @@ class SoundAddControls extends StatelessWidget {
       builder: (context, addModel, child) {
         List<Widget> children = [];
 
-        if (!addModel.playing) {
+        if (soundModel.playing == null) {
           children.add(
             ElevatedButton(
               style: alternativeStyleRound(Theme.of(context).colorScheme),
@@ -365,6 +375,7 @@ class SoundAddPage extends StatelessWidget {
                     children: [
                       TextField(
                         style: textStyle,
+                        onChanged: (value) => addModel.setName(value),
                         decoration: InputDecoration(
                           label: Text("Sound name"),
                           hintStyle: textStyle,
