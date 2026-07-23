@@ -16,9 +16,6 @@ void main() async {
   runApp(const MyApp());
 }
 
-
-
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -75,7 +72,7 @@ class _RootPageState extends State<RootPage> {
         if (snapshot.connectionState == .done) {
 
           if(snapshot.data == null) {
-            return HomePage(title: 'TwoGater (local)');
+            return HomePage(title: 'TwoGather');
           }
           return snapshot.data!.fold((success) => HomePage(title: 'TwoGather'),
             (failure) {
@@ -93,7 +90,7 @@ class _RootPageState extends State<RootPage> {
           );
            
         } else {
-          return Center(child:CircularProgressIndicator());
+          return Container(color: Theme.of(context).colorScheme.surface, child: Center(child:CircularProgressIndicator()));
         }
       });
     }

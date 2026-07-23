@@ -59,6 +59,7 @@ ThemeData getTheme() {
     tertiary: c[0],
     // surface: Color(0xFFF4F4DC),
     surface: Color(0XFFffefcb),
+    onSecondary: Color(0XFFffefcb)
   );
 
   var buttonStyle = ButtonStyle(
@@ -76,8 +77,11 @@ ThemeData getTheme() {
     colorScheme: scheme,
     iconTheme: IconThemeData(color: scheme.secondary),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
+      
       backgroundColor: scheme.primary,
       foregroundColor: scheme.secondary,
+      
+      shape: RoundedRectangleBorder(borderRadius: .circular(5))
 
       // shape: RoundedRectangleBorder(side: .none, borderRadius: .all(Radius.elliptical(1, 1)))
     ),

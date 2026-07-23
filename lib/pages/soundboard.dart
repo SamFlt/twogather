@@ -166,23 +166,27 @@ class _SoundBoardWidgetState extends State<SoundBoardWidget> {
                 onPressed: () => onAddPressed(context, model),
                 child: Icon(Icons.add),
               ),
-              body: Stack(
-                children:[GridView.count(
-                padding: .fromLTRB(5, 5, 5, 5),
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                crossAxisCount: 2,
-                children: model._sounds
-                    .map((sound) => SoundButtonWidget(sound))
-                    .toList(),
-              ),
-              if (model.playing != null) FloatingActionButton(child: Text("prout"), onPressed: () {
-                if(model.playing != null) {
-                  model.stopCurrentSound();
-                }
-              })
-              
-              ]
+              body: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Stack(
+                  alignment: .bottomCenter,
+                  children:[GridView.count(
+                  padding: .fromLTRB(5, 5, 5, 5),
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  crossAxisCount: 2,
+                  children: model._sounds
+                      .map((sound) => SoundButtonWidget(sound))
+                      .toList(),
+                ),
+                IconButton(onPressed: model.playing != null ? () {
+                  
+                    model.stopCurrentSound();
+                  
+                } : null, icon: Icon(Icons.stop_circle_outlined, size: 32))
+                
+                ]
+                ),
               ),
             );
           }

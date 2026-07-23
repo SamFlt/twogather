@@ -6,6 +6,7 @@ class BasePage extends StatelessWidget {
   final String title;
   final List<String> text;
   final String assetPath;
+  final bool center;
 
   final void Function()? transition;
 
@@ -15,18 +16,16 @@ class BasePage extends StatelessWidget {
     required this.text,
     required this.assetPath,
     this.transition,
+    this.center = false
   });
 
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
-    Padding padding(widget) => Padding(
-      padding: (MediaQuery.paddingOf(context) * 2).add(.fromLTRB(20, 0, 20, 0)),
-      child: widget
-    );
-
-    var content = Center(
+    return Padding(
+      padding: (MediaQuery.paddingOf(context) * 2).add(.fromLTRB(30, 0, 30, 0)),
+      child: Center(
         child: Column(
           crossAxisAlignment: .start,
           children: [
@@ -42,22 +41,19 @@ class BasePage extends StatelessWidget {
             ...text.map(
               (s) => Text(s, style: textTheme.bodyLarge, textAlign: .start),
             ),
+            const SizedBox(height: 50),
+            if (transition != null)
+              Center(
+                child: ElevatedButton(
+                  onPressed: transition,
+                  
+                  child: Text("C'est parti", style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Theme.of(context).colorScheme.onSecondary), ),
+                ),
+              ),
           ],
         ),
-      );
-    if (transition == null) {
-      return padding(
-        content
-      );
-    }
-
-    return padding(Stack(
-      alignment: .bottomRight,
-      children: [
-        content,
-        ElevatedButton(onPressed: transition, child: Text("C'est parti")),
-      ],
-    ));
+      ),
+    );
   }
 }
 
@@ -67,7 +63,7 @@ class PageYou extends BasePage {
         title: "Pour toi!",
         assetPath: "assets/logo_left.svg",
         text: const [
-          "J'ai fait cette appli pour toi car je sais que tu es souvent nostalgique",
+          "J'ai fait cette appli pour toi car je sais que tu aimes redécouvrir le passé",
           "",
           "Car je te vois le soir chérir tes memories snap",
           "Car je veux que tu puisses les partager avec moi",
@@ -89,7 +85,7 @@ class PageMe extends BasePage {
           "",
           "Je ne veux pas perdre une miette du temps qu'on passe ensemble",
           "Je veux pouvoir t'entendre, même quand tu n'es pas avec moi"
-              "",
+          "",
         ],
       );
 }
@@ -99,8 +95,18 @@ class PageUs extends BasePage {
     : super(
         title: "Pour nous!",
         assetPath: "assets/logo.svg",
-        text: const [""],
+        text: const [
+          "Pour qu'on rigole",
+          "Pour qu'on partage",
+          "Pour qu'on découvre l'avenir ensemble"
+          "",
+          "",
+          
+          "Joyeux anniversaire",
+          "🎉🎉🎉"
+        ],
         transition: transition,
+        center: true
       );
 }
 
