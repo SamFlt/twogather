@@ -88,7 +88,7 @@ class _RootPageState extends State<RootPage> {
                 },
               ),
               );
-              return HomePage(title: 'TwoGater (local)', message: snackBar);
+              return HomePage(title: 'TwoGather (local)', message: snackBar);
             },
           );
            

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:twogather/pages/calendar_page.dart';
 import 'package:twogather/pages/soundboard.dart';
 
 class HomePage extends StatefulWidget {
@@ -23,7 +24,7 @@ class _MyHomePageState extends State<HomePage> {
   }
 
   Widget eventPage(BuildContext context) {
-    return Center(child: Column(children: [Text('Events')]));
+    return CalendarPage();
   }
 
   @override
@@ -55,7 +56,7 @@ class _MyHomePageState extends State<HomePage> {
         foregroundColor: Theme.of(context).colorScheme.inversePrimary,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text(widget.title, style: Theme.of(context).textTheme.headlineLarge,),
       ),
 
       bottomNavigationBar: NavigationBar(
@@ -88,24 +89,26 @@ class _MyHomePageState extends State<HomePage> {
         selectedIndex: currentPageIndex,
         destinations: <Widget>[
           NavigationDestination(
-            selectedIcon: iconFn(Icons.speaker, true),
-            icon: iconFn(Icons.speaker_outlined, false),
+            selectedIcon: iconFn(Icons.hearing, true),
+            icon: iconFn(Icons.hearing_outlined, false),
             label: 'Hear',
           ),
           NavigationDestination(
-            selectedIcon: iconFn(Icons.lightbulb_outlined, true),
-            icon: iconFn(Icons.lightbulb, false),
+            selectedIcon: iconFn(Icons.remove_red_eye, true),
+            icon: iconFn(Icons.remove_red_eye_outlined, false),
             label: 'See',
           ),
           NavigationDestination(
-            icon: iconFn(Icons.hourglass_top, false),
-            selectedIcon: iconFn(Icons.hourglass_bottom, true),
+            icon: iconFn(Icons.watch_later, false),
+            selectedIcon: iconFn(Icons.watch_later_outlined, true),
             label: 'Meet',
           ),
         ],
       ),
       body: Builder(
         builder: (context) {
+
+          
           return [soundPage, memoriesPage, eventPage][currentPageIndex](
             context,
           );
