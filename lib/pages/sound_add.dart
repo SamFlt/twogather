@@ -8,6 +8,7 @@ import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:provider/provider.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:twogather/core/recorder.dart';
+import 'package:twogather/core/theme.dart';
 import 'package:twogather/data/sound.dart';
 import 'package:twogather/pages/soundboard.dart';
 
@@ -110,6 +111,14 @@ class SoundAddModel extends ChangeNotifier {
   Future<void> stopRecording() async {
     Recorder.instance.stopStreamingData();
     soundData = soundBuilder.toBytes();
+    if(s.audio != null) {
+      SoLoud.instance.disposeSource(s.audio!);
+    }
+    DateTime now = DateTime.now();
+    now.toIso8601String();
+    s.filename = 'recording-${now.toIso8601String()}.wav';
+    s.audio = await SoLoud.instance.loadMem(s.filename!, soundData);
+
     recording = false;
     notifyListeners();
   }
@@ -150,8 +159,8 @@ class FormGroup extends StatelessWidget {
         else
           Container(
             foregroundDecoration: BoxDecoration(
-              color: Colors.grey,
-              backgroundBlendMode: BlendMode.saturation,
+              color: disabledColor(),
+              backgroundBlendMode: BlendMode.lighten,
             ),
             child: container,
           ),
@@ -170,13 +179,14 @@ class FormGroup extends StatelessWidget {
           left: fs / 2,
           right: fs / 2,
         ),
-        color: Theme.of(context).colorScheme.surface,
         child: Text(
           title,
           style: TextStyle(
             fontSize: fs,
-            color: Theme.of(context).colorScheme.secondary,
+            color: disabled ? disabledColor() : Theme.of(context).colorScheme.secondary,
+            backgroundColor: Theme.of(context).colorScheme.surface
           ),
+          
         ),
       ),
     );
@@ -260,6 +270,8 @@ class SoundAddControls extends StatelessWidget {
         if (!addModel.playing) {
           children.add(
             ElevatedButton(
+              style: alternativeStyleRound(Theme.of(context).colorScheme),
+              
               onPressed: addModel.s.audio != null
                   ? () => addModel.playSound(soundModel)
                   : null,
@@ -269,6 +281,7 @@ class SoundAddControls extends StatelessWidget {
         } else {
           children.add(
             ElevatedButton(
+              style: alternativeStyleRound(Theme.of(context).colorScheme),
               onPressed: () => addModel.s.audio != null
                   ? addModel.stopSound(soundModel)
                   : null,
@@ -280,7 +293,6 @@ class SoundAddControls extends StatelessWidget {
           );
         }
 
-        children.add(SizedBox(width: 20));
         var validate = addModel.canValidate()
             ? () async {
                 final result = await addModel.validate(soundModel);
@@ -303,20 +315,24 @@ class SoundAddControls extends StatelessWidget {
                 );
               }
             : null;
-        children.add(ElevatedButton(onPressed: validate, child: Text('Save')));
 
         return Container(
           decoration: BoxDecoration(
-            borderRadius: .all(Radius.circular(10)),
+            borderRadius: .all(Radius.circular(5)),
             color: Theme.of(context).colorScheme.secondary,
           ),
 
           child: Padding(
             padding: .fromLTRB(20, 5, 20, 5),
             child: Row(
-              mainAxisAlignment: .center,
+              mainAxisAlignment: .spaceBetween,
               mainAxisSize: .min,
-              children: children,
+              
+              children: [
+                Row(children: children),
+                SizedBox(width: 70),
+                ElevatedButton(onPressed: validate, style: alternativeStyle(Theme.of(context).colorScheme), child: Text('Save'))
+              ],
             ),
           ),
         );

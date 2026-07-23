@@ -16,7 +16,7 @@ class DataRepository {
     if(init) {
       return _db;
     } else {
-      try {
+      try { 
         await connectToDb();
         return _db;
       } on Exception {
@@ -43,13 +43,14 @@ class DataRepository {
     save:    (String data) async => prefs.setString('pb_auth', data),
     initial: prefs.getString('pb_auth'),
     );
+
     talker.info(store);
-    _db = PocketBase('http://192.168.1.188:8090', authStore: store);
+    _db = PocketBase('https://twogather.felton-freelance.com', authStore: store);
 
     init = true;
     talker.info(_db);
     try {
-      await _db.collection('users').authWithPassword('karam.maslef@gmail.com', '_-1il6JCQwJXXRKM8rPa');
+      await _db.collection('users').authWithPassword('karam.maslef@gmail.com', '0uf_Fol1occJL3FV01HG');
       talker.info(_db.authStore.record);
       connected = true;
       return Success(0);

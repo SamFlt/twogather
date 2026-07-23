@@ -3,11 +3,11 @@ import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:twogather/core/theme.dart';
 import 'package:twogather/data/db.dart';
-import 'package:twogather/pages/soundboard.dart';
+import 'package:twogather/pages/home_page.dart';
+import 'package:twogather/pages/intro_page.dart';
 
 
 void main() async {
-  await SoLoud.instance.init();
   await SoLoud.instance.init(
     sampleRate: 44100,
     bufferSize: 2048,
@@ -17,22 +17,67 @@ void main() async {
 }
 
 
+
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'TwoGather',
       theme: getTheme(),
-      home: FutureBuilder<Result<int>>(future: DataRepository.instance.connectToDb(), builder:(context, snapshot) {
-        
+      home: RootPage(),
+    );
+  }
+}
+
+class RootPage extends StatefulWidget {
+  const RootPage({super.key});
+
+  @override
+  State<RootPage> createState() => _RootPageState();
+}
+
+
+enum RootPageFlowStatus {
+  intro,
+  login,
+  content
+}
+
+class _RootPageState extends State<RootPage> {
+
+  RootPageFlowStatus status = .intro;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void changeStatus(RootPageFlowStatus status) {
+    setState(() {
+      this.status = status;
+    });
+  }
+  
+
+  @override
+  Widget build(BuildContext context) {
+    switch(status) {
+      
+      case RootPageFlowStatus.intro:
+        return IntroPage(transition: () => changeStatus(.content));
+      case RootPageFlowStatus.login:
+        throw UnimplementedError();
+      case RootPageFlowStatus.content:
+        return FutureBuilder<Result<int>>(future: DataRepository.instance.connectToDb(), builder:(context, snapshot) {
         if (snapshot.connectionState == .done) {
 
           if(snapshot.data == null) {
-            return MyHomePage(title: 'TwoGater (local)');
+            return HomePage(title: 'TwoGater (local)');
           }
-          return snapshot.data!.fold((success) => MyHomePage(title: 'TwoGather'),
+          return snapshot.data!.fold((success) => HomePage(title: 'TwoGather'),
             (failure) {
               final snackBar = SnackBar(
               content: Text(failure.toString()),
@@ -43,117 +88,16 @@ class MyApp extends StatelessWidget {
                 },
               ),
               );
-              return MyHomePage(title: 'TwoGater (local)', message: snackBar);
+              return HomePage(title: 'TwoGater (local)', message: snackBar);
             },
           );
            
         } else {
           return Center(child:CircularProgressIndicator());
         }
-      },) ,
-    );
-  }
-}
-
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({super.key, required this.title, this.message});
-
-  final String title;
-  final SnackBar? message;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-
-
-class _MyHomePageState extends State<MyHomePage> {
-  int currentPageIndex = 0;
-
-  Widget soundPage(BuildContext context) {
-    return SoundBoardWidget();
-  }
-
-  Widget memoriesPage(BuildContext context) {
-    return Center(child: Column(children: [Text('Memories')]));
-  }
-
-  Widget eventPage(BuildContext context) {
-    return Center(child: Column(children: [Text('Events')]));
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if(widget.message != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-      ScaffoldMessenger.of(context).showSnackBar(widget.message!);
       });
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    var primary = Theme.of(context).colorScheme.primary;
-
-    Widget iconFn(IconData d, bool selected) {
-      var colorScheme = Theme.of(context).colorScheme;
-      return Icon(d, color: selected ? colorScheme.primary: colorScheme.secondary, size: 20);
-    }
-
-    
-    return Scaffold(
-
-      appBar: AppBar(
-        backgroundColor: primary,
-        foregroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
-        },
-      
-        backgroundColor: primary,
-        labelTextStyle: WidgetStateProperty.fromMap(<WidgetStatesConstraint, TextStyle>{
-          WidgetState.selected: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.secondary),
-          WidgetState.any: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.secondary),
-        }),
-        indicatorColor: Theme.of(context).colorScheme.secondary,
-        indicatorShape: StarBorder(points: 8, innerRadiusRatio: 0.8, valleyRounding: 0.25, pointRounding: 0.1),
-        height: 70,
-        selectedIndex: currentPageIndex,
-        destinations: <Widget>[
-          NavigationDestination(
-            selectedIcon: iconFn(Icons.speaker, true),
-            icon: iconFn(Icons.speaker_outlined, false),
-            label: 'Sounds of love',
-          ),
-          NavigationDestination(
-            selectedIcon: iconFn(Icons.lightbulb_outlined, true),
-            icon: iconFn(Icons.lightbulb, false),
-            label: 'Memories',
-          ),
-          NavigationDestination(
-            icon: iconFn(Icons.hourglass_top, false),
-            selectedIcon: iconFn(Icons.hourglass_bottom_outlined, true),
-            label: 'Events',
-          ),
-        ],
-      ),
-      body: Builder(
-        builder: (context) {
-          
-          return [soundPage, memoriesPage, eventPage][currentPageIndex](context);
-        }
-      ),
-    );
-  }
-  
 }
+

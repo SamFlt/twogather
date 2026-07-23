@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   sodipodi:docname="logo_hl.svg"
+   inkscape:export-filename="logo_left.svg"
+   inkscape:export-xdpi="186.75"
+   inkscape:export-ydpi="186.75"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="4.689215"
+     inkscape:cx="176.46877"
+     inkscape:cy="350.05859"
+     inkscape:window-width="2560"
+     inkscape:window-height="1377"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     inkscape:export-bgcolor="#00000000" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Layer 2"
+     style="display:inline">
+    <path
+       style="display:inline;fill:#43b451;fill-opacity:1;stroke-width:0.264583"
+       d="m 65.69447,99.491828 c 1.510432,-1.55513 3.453272,-2.966124 4.479167,-4.682766 1.063237,-1.761671 2.126474,-3.218259 3.189711,-4.818498 l 2.646781,-5.836492 c 3.772893,4.461537 9.340882,10.860619 13.301773,14.455497 L 85.706216,97.398633 C 82.815757,93.370839 79.644733,89.316942 76.213728,86.190057 l -6.614834,11.524077 z"
+       id="path3"
+       sodipodi:nodetypes="ccccccccc"
+       inkscape:export-filename="logo.png"
+       inkscape:export-xdpi="200"
+       inkscape:export-ydpi="200" />
+    <ellipse
+       style="display:inline;fill:#25632d;fill-opacity:1;stroke-width:0.264583"
+       id="path4"
+       cx="76.104813"
+       cy="85.353577"
+       rx="1.4806938"
+       ry="1.6093261" />
+  </g>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="mix-blend-mode:normal">
+    <ellipse
+       style="display:inline;mix-blend-mode:normal;fill:#ffacb7;fill-opacity:1;stroke-width:0.264583"
+       id="path1"
+       cx="68.759384"
+       cy="109.81229"
+       rx="12.332764"
+       ry="12.163822"
+       inkscape:label="cherry_left" />
+    <ellipse
+       style="display:none;fill:#ffacb7;fill-opacity:1;stroke-width:0.265;stroke-dasharray:none"
+       id="path1-3"
+       cx="87.410187"
+       cy="109.41251"
+       rx="12.332764"
+       ry="12.163822"
+       inkscape:label="cherry_right" />
+    <path
+       style="display:none;mix-blend-mode:normal;fill:#ff3737;fill-opacity:1;stroke-width:0.264583"
+       d="m 67.604335,97.691217 c 3.612472,-0.417537 8.025035,1.264066 10.242291,3.928323 1.890803,-2.278015 6.00154,-4.680479 10.047906,-4.355365 11.183649,8.557745 -9.380612,15.177925 -9.599837,20.268615 0.212325,-5.07435 -20.89506,-12.53924 -10.69036,-19.841573 z"
+       id="path2"
+       sodipodi:nodetypes="ccccc"
+       inkscape:label="herart_full" />
+    <path
+       style="display:inline;mix-blend-mode:normal;fill:#ff3737;fill-opacity:1;stroke-width:0.264583"
+       d="M 67.586703,97.751168 C 73.074365,95.737725 87.87902,105.55559 78.294695,117.53279 78.50702,112.45844 57.382003,105.0535 67.586703,97.751168 Z"
+       id="path5"
+       sodipodi:nodetypes="ccc"
+       inkscape:label="heart_left" />
+    <path
+       style="display:none;mix-blend-mode:normal;fill:#ff3737;fill-opacity:1;stroke-width:0.264583"
+       d="M 87.894532,97.264175 C 99.078181,105.82192 78.51392,112.4421 78.294695,117.53279 69.263833,106.94635 79.870288,96.03628 87.894532,97.264175 Z"
+       id="path6"
+       sodipodi:nodetypes="ccc"
+       inkscape:label="heart_right" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="right" />
+</svg>
